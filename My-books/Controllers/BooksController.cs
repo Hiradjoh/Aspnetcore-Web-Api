@@ -10,17 +10,21 @@ namespace My_books.Controllers
     {
         public BookService _bookService;
 
+        #region [-Ctor-]
         public BooksController(BookService bookService)
         {
             _bookService = bookService;
-        }
-        [HttpGet("get-book-by-id/{id}")]
+        } 
+        #endregion
 
+        #region [-GetBookById-]
+        [HttpGet("get-book-by-id/{id}")]
         public IActionResult GetBookById(int id)
         {
             var book = _bookService.GetBookById(id);
             return Ok(book);
-        }
+        } 
+        #endregion
 
         #region [-Get-All-Books-]
         [HttpGet("get-all-books")]
@@ -32,10 +36,10 @@ namespace My_books.Controllers
         #endregion
 
         #region [-Post-Book-]
-        [HttpPost("add-book")]
+        [HttpPost("add-book-with-authors")]
         public IActionResult AddBook([FromBody] BookVM book)
         {
-            _bookService.AddBook(book);
+            _bookService.AddBookWithAuthors(book);
             return Ok();
         }
         #endregion
@@ -49,13 +53,15 @@ namespace My_books.Controllers
         }
         #endregion
 
+        #region [-DeleteBookById-]
         [HttpDelete("delete-book-by-id/{id}")]
         public IActionResult DeleteBookById(int id)
         {
-           _bookService.DeleteById(id);
-            return Ok();    
+            _bookService.DeleteById(id);
+            return Ok();
 
         } 
+        #endregion
 
     }
 }

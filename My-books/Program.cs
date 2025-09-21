@@ -13,6 +13,8 @@ builder.Services.AddDbContext<ProjectDbContext>(options => options.UseSqlServer(
 
 // Dependency Injection
 builder.Services.AddTransient<BookService>();
+builder.Services.AddTransient<AuthorService>();
+builder.Services.AddTransient<PublisherService>();
 
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

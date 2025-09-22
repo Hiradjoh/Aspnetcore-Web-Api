@@ -16,13 +16,21 @@ namespace My_books.Controllers
             _publisherService = publisherService;
         }
 
+        [HttpGet("get-publisher-books-with-authors/{id}")]
+        public IActionResult GetPublisherData(int id)
+        {
+            var _response = _publisherService.GetPublisherData(id);
+            return Ok(_response);
+        }
+        #region [-Get-Publisher-By-Id-]
         [HttpGet("get-publisher-by-id/{id}")]
 
         public IActionResult GetPublisherById(int id)
         {
             var publisher = _publisherService.GetPublisherById(id);
             return Ok(publisher);
-        }
+        } 
+        #endregion
 
         #region [-Get-All-publisher-]
         [HttpGet("get-all-publisher")]

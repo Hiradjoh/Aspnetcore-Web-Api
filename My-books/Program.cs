@@ -1,33 +1,32 @@
 using Microsoft.EntityFrameworkCore;
 using My_books;
 using My_books.Data.Services;
-using My_books.Exceptions;
+using My_books.Exceptions.MiddleWares;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Database Context
+
+#region [-Database-Context-]
 var connectionString = builder.Configuration.GetConnectionString("defaultConnection");
 builder.Services.AddDbContext<ProjectDbContext>(options => options.UseSqlServer(connectionString));
+#endregion
 
-// Dependency Injection
+#region [-Dependency-Injection-]
 builder.Services.AddTransient<BookService>();
 builder.Services.AddTransient<AuthorService>();
 builder.Services.AddTransient<PublisherService>();
+#endregion
 
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
-// Swagger Setup
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -36,11 +35,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-//Exception Handeling 
+
+#region [-Exception-Handling-]
+// Exception Handling
 app.ConfigureBuildInExceptionHandler();
+// app.ConfigureCustomExceptionHandler();
+#endregion
 
 app.MapControllers();
-
 app.Run();
+

@@ -9,14 +9,21 @@ namespace My_books.Data.Services
     {
         private readonly ProjectDbContext _context;
 
+        #region [-Ctor-]
         public BookService(ProjectDbContext context)
         {
             _context = context;
         }
+        #endregion
+
+        #region [-Get-All-Books-]
         public List<Book> GetAllBooks()
         {
             return _context.Books.ToList();
         }
+        #endregion
+
+        #region [-Get-Book-By-Id-]
         public BookWithAuthorsVM GetBookById(int bookId)
         {
             var _bookWithAuthors = _context.Books.Select(book => new BookWithAuthorsVM()
@@ -29,12 +36,13 @@ namespace My_books.Data.Services
                 Genre = book.Genre,
                 CoverUrl = book.CoverUrl,
                 PublisherName = book.Publisher.Name,
-                AuthorNames = book.Book_Authors.Select(n => n.Author.FullName).ToList()//authornames ye list string mide 
-                       //list RECORD jadval vaset marbot be in ketab esm miare ye list mide  
+                AuthorNames = book.Book_Authors.Select(n => n.Author.FullName).ToList()
             }).FirstOrDefault();
-            return _bookWithAuthors; 
+            return _bookWithAuthors;
         }
+        #endregion
 
+        #region [-Post-Book-With-Authors-]
         public void AddBookWithAuthors(BookVM book)
         {
             var _book = new Book()
@@ -45,14 +53,13 @@ namespace My_books.Data.Services
                 DateRead = book.IsRead ? book.DateRead.Value : null,
                 Rate = book.IsRead ? book.Rate.Value : null,
                 Genre = book.Genre,
-                //Author = book.Author,
                 CoverUrl = book.CoverUrl,
                 DateAdded = DateTime.Now,
                 PublisherId = book.publisherId
-
             };
             _context.Books.Add(_book);
             _context.SaveChanges();
+
             foreach (var id in book.AuthorId)
             {
                 var _book_author = new Book_Author()
@@ -61,10 +68,11 @@ namespace My_books.Data.Services
                     AuthorId = id,
                 };
                 _context.Book_Authors.Add(_book_author);
-
             }
             _context.SaveChanges();
         }
+        #endregion
+
         #region [-Update-Book-By-Id-]
         public Book UpdateBookById(int bookId, BookVM book)
         {
@@ -77,21 +85,23 @@ namespace My_books.Data.Services
                 _book.DateRead = book.IsRead ? book.DateRead.Value : null;
                 _book.Rate = book.IsRead ? book.Rate.Value : null;
                 _book.Genre = book.Genre;
-                //_book.Author = book.Author;
                 _book.CoverUrl = book.CoverUrl;
                 _context.SaveChanges();
             }
             return _book;
-        } 
+        }
         #endregion
+
+        #region [-Delete-Book-By-Id-]
         public void DeleteById(int bookId)
         {
             var _book = _context.Books.FirstOrDefault(n => n.Id == bookId);
-            if( _book != null)
+            if (_book != null)
             {
                 _context.Books.Remove(_book);
-                _context.SaveChanges() ;    
+                _context.SaveChanges();
             }
         }
+        #endregion
     }
 }

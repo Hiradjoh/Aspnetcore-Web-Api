@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Http.Features;
 using My_books.Data.ViewModels;
 using System.Net;
 
-namespace My_books.Exceptions
+namespace My_books.Exceptions.MiddleWares
 {
-    public static class ExceptionMiddlewareExtensions
-    { 
+    public static class ExceptionMiddlewareExtensions// tarif middle ware ha 
+    {
+        #region [-Configure-BuiltIn-Exception-Handler-]
         public static void ConfigureBuildInExceptionHandler(this IApplicationBuilder app)
         {
             app.UseExceptionHandler(appError =>
@@ -28,7 +29,15 @@ namespace My_books.Exceptions
                         }.ToString());
                     }
                 });
-});
+            });
         }
+        #endregion
+
+        #region [-Configure-Custom-Exception-Handler-]
+        public static void ConfigureCustomExceptionHandler(this IApplicationBuilder app)
+        {
+            app.UseMiddleware<CustomExceptionMiddleware>();
+        }
+        #endregion
     }
 }

@@ -12,25 +12,28 @@ namespace My_books.Controllers
     {
         public PublisherService _publisherService;
 
+        #region [-Ctor-]
         public PublisherController(PublisherService publisherService)
         {
             _publisherService = publisherService;
-        }
+        } 
+        #endregion
 
+        #region [-Get-Publisher-Books-With-Authors-By-Id-]
         [HttpGet("get-publisher-books-with-authors/{id}")]
         public IActionResult GetPublisherData(int id)
         {
             var _response = _publisherService.GetPublisherData(id);
             return Ok(_response);
         }
+        #endregion
+
         #region [-Get-Publisher-By-Id-]
         [HttpGet("get-publisher-by-id/{id}")]
-
         public IActionResult GetPublisherById(int id)
         {
-            throw new Exception("This is an exception that will be handled by middleware");
             var _response = _publisherService.GetPublisherById(id);
-            if(_response != null)
+            if (_response != null)
             {
                 return Ok(_response);
             }
@@ -38,10 +41,10 @@ namespace My_books.Controllers
             {
                 return NotFound();
             }
-        } 
+        }
         #endregion
 
-        #region [-Get-All-publisher-]
+        #region [-Get-All-Publisher-]
         [HttpGet("get-all-publisher")]
         public IActionResult GetAllpublishers()
         {
@@ -57,12 +60,11 @@ namespace My_books.Controllers
             try
             {
                 var newPublisher = _publisherService.AddPublisher(publisher);
-
                 return Created(nameof(AddPublisher), newPublisher);
             }
-            catch(PublisherNameException ex)
+            catch (PublisherNameException ex)
             {
-                return BadRequest($"{ex.Message},Publisher name:{ex.PublisherName}");
+                return BadRequest($"{ex.Message}, Publisher name: {ex.PublisherName}");
             }
             catch (Exception ex)
             {
@@ -71,7 +73,7 @@ namespace My_books.Controllers
         }
         #endregion
 
-        #region [-Put-publisher-]
+        #region [-Put-Publisher-By-Id-]
         [HttpPut("update-publisher-by-id/{id}")]
         public IActionResult PutPublisherById(int id, [FromBody] PublisherVM publisher)
         {
@@ -80,6 +82,7 @@ namespace My_books.Controllers
         }
         #endregion
 
+        #region [-Delete-Publisher-By-Id-]
         [HttpDelete("delete-publisher-by-id/{id}")]
         public IActionResult DeletePublisherById(int id)
         {
@@ -87,15 +90,12 @@ namespace My_books.Controllers
             {
                 _publisherService.DeletePublisherById(id);
                 return Ok();
-
             }
-           
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-             
         }
-
+        #endregion
     }
 }

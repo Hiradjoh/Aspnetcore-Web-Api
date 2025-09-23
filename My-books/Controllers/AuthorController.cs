@@ -11,17 +11,21 @@ namespace My_books.Controllers
     {
         public AuthorService _authorService;
 
+        #region [-Ctor-]
         public AuthorController(AuthorService authorService)
         {
             _authorService = authorService;
-        }
-        [HttpGet("get-author-by-id/{id}")]
+        } 
+        #endregion
 
+        #region [-Get-Author-By-Id-]
+        [HttpGet("get-author-by-id/{id}")]
         public IActionResult GetAuthorById(int id)
         {
             var author = _authorService.GetAuthorById(id);
             return Ok(author);
         }
+        #endregion
 
         #region [-Get-All-Author-]
         [HttpGet("get-all-author")]
@@ -50,19 +54,24 @@ namespace My_books.Controllers
         }
         #endregion
 
+        #region [-Delete-Author-By-Id-]
         [HttpDelete("delete-author-by-id/{id}")]
         public IActionResult DeleteAuthorById(int id)
         {
             _authorService.DeleteById(id);
             return Ok();
-
         }
+        #endregion
+
+        #region [-Get-Author-With-Books-By-Id-]
         [HttpGet("get-author-with-books-by-id/{id}")]
         public IActionResult GetAuthorWithBooks(int id)
         {
             var respons = _authorService.GetAuthorWithBooks(id);
             return Ok(respons);
         }
+        #endregion
+
     }
 }
 

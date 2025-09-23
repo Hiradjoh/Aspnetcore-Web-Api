@@ -2,6 +2,7 @@
 using My_books.Data.Models;
 using My_books.Data.Services;
 using My_books.Data.ViewModels;
+using My_books.Exceptions;
 
 namespace My_books.Controllers
 {
@@ -27,8 +28,16 @@ namespace My_books.Controllers
 
         public IActionResult GetPublisherById(int id)
         {
-            var publisher = _publisherService.GetPublisherById(id);
-            return Ok(publisher);
+            throw new Exception("This is an exception that will be handled by middleware");
+            var _response = _publisherService.GetPublisherById(id);
+            if(_response != null)
+            {
+                return Ok(_response);
+            }
+            else
+            {
+                return NotFound();
+            }
         } 
         #endregion
 
@@ -45,9 +54,20 @@ namespace My_books.Controllers
         [HttpPost("add-publisher")]
         public IActionResult AddPublisher([FromBody] PublisherVM publisher)
         {
-            _publisherService.AddPublisher(publisher);
-          
-            return Ok();
+            try
+            {
+                var newPublisher = _publisherService.AddPublisher(publisher);
+
+                return Created(nameof(AddPublisher), newPublisher);
+            }
+            catch(PublisherNameException ex)
+            {
+                return BadRequest($"{ex.Message},Publisher name:{ex.PublisherName}");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         #endregion
 
@@ -63,9 +83,18 @@ namespace My_books.Controllers
         [HttpDelete("delete-publisher-by-id/{id}")]
         public IActionResult DeletePublisherById(int id)
         {
-            _publisherService.DeletePublisherById(id);
-            return Ok();
+            try
+            {
+                _publisherService.DeletePublisherById(id);
+                return Ok();
 
+            }
+           
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+             
         }
 
     }

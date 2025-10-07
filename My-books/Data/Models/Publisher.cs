@@ -6,7 +6,7 @@
         public string Name { get; set; }
         //navigation properties
         public List<Book> Books { get; set; }
-        
-        
+
+
     }
 }

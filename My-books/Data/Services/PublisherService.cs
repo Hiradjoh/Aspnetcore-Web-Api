@@ -1,4 +1,5 @@
 ﻿using My_books.Data.Models;
+using My_books.Data.Pagging;
 using My_books.Data.ViewModels;
 using My_books.Exceptions;
 using System.Net;
@@ -18,9 +19,32 @@ namespace My_books.Data.Services
         #endregion
 
         #region [-Get-All-Publishers-]
-        public List<Publisher> GetAllPublishers()
+        public List<Publisher> GetAllPublishers(string sortBy, string searchString, int? pageNumber)
         {
-            return _context.Publishers.ToList();
+            var allPublishers = _context.Publishers.OrderBy(n => n.Name).ToList();
+
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                switch (sortBy)
+                {
+                    case "name_desc":
+                        allPublishers = allPublishers.OrderByDescending(n => n.Name).ToList();
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+            if (!string.IsNullOrEmpty(searchString))
+            {
+
+                allPublishers = allPublishers.Where(n => n.Name.Contains(searchString, StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            }
+            // paging 
+            int pageSize = 5;
+            allPublishers = PaginatedList<Publisher>.Create(allPublishers.AsQueryable(), pageNumber ?? 1, pageSize);
+            return allPublishers;
         }
         #endregion
 

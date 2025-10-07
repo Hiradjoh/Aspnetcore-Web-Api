@@ -14,16 +14,16 @@ namespace My_books.Controllers
         public BooksController(BookService bookService)
         {
             _bookService = bookService;
-        } 
+        }
         #endregion
 
         #region [-GetBookById-]
         [HttpGet("get-book-by-id/{id}")]
-        public IActionResult GetBookById(int id)
+        public ActionResult<BookAuthorVM> GetBookById(int id)
         {
             var book = _bookService.GetBookById(id);
             return Ok(book);
-        } 
+        }
         #endregion
 
         #region [-Get-All-Books-]
@@ -60,7 +60,7 @@ namespace My_books.Controllers
             _bookService.DeleteById(id);
             return Ok();
 
-        } 
+        }
         #endregion
 
     }

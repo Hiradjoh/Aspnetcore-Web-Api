@@ -12,7 +12,7 @@ namespace My_books.Data.Services
         public AuthorService(ProjectDbContext context)
         {
             _context = context;
-        } 
+        }
         #endregion
 
         #region [-Get-All-Authors-]

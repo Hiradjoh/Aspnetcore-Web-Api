@@ -3,6 +3,8 @@ using My_books.Data.Models;
 using My_books.Data.Services;
 using My_books.Data.ViewModels;
 using My_books.Exceptions;
+using System.Reflection.Metadata;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace My_books.Controllers
 {
@@ -10,14 +12,17 @@ namespace My_books.Controllers
     [ApiController]
     public class PublisherController : ControllerBase
     {
-        public PublisherService _publisherService;
+        private PublisherService _publisherService;
+        private readonly ILogger<PublisherController> _logger;
 
         #region [-Ctor-]
-        public PublisherController(PublisherService publisherService)
+        public PublisherController(PublisherService publisherService, ILogger<PublisherController> logger)
         {
             _publisherService = publisherService;
-        } 
+            _logger = logger;
+        }
         #endregion
+
 
         #region [-Get-Publisher-Books-With-Authors-By-Id-]
         [HttpGet("get-publisher-books-with-authors/{id}")]
@@ -32,6 +37,7 @@ namespace My_books.Controllers
         [HttpGet("get-publisher-by-id/{id}")]
         public IActionResult GetPublisherById(int id)
         {
+
             var _response = _publisherService.GetPublisherById(id);
             if (_response != null)
             {
@@ -40,16 +46,27 @@ namespace My_books.Controllers
             else
             {
                 return NotFound();
+
             }
         }
         #endregion
 
         #region [-Get-All-Publisher-]
         [HttpGet("get-all-publisher")]
-        public IActionResult GetAllpublishers()
+        public IActionResult GetAllublishers(string sortBy, string searchString, int pageNumber)
         {
-            var allpublishers = _publisherService.GetAllPublishers();
-            return Ok(allpublishers);
+
+            try
+            {
+                _logger.LogInformation("This is just a log in GetAllpublishers()");
+                var allpublishers = _publisherService.GetAllPublishers(sortBy, searchString, pageNumber);
+                return Ok(allpublishers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Sorry we could not load the publishers");
+            }
+
         }
         #endregion
 
@@ -57,18 +74,22 @@ namespace My_books.Controllers
         [HttpPost("add-publisher")]
         public IActionResult AddPublisher([FromBody] PublisherVM publisher)
         {
-            try
+            try // try: code that might throw an error
             {
                 var newPublisher = _publisherService.AddPublisher(publisher);
                 return Created(nameof(AddPublisher), newPublisher);
             }
-            catch (PublisherNameException ex)
+            catch (PublisherNameException ex) //handle the error
             {
                 return BadRequest($"{ex.Message}, Publisher name: {ex.PublisherName}");
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+            finally// finally: always executes
+
+            {
             }
         }
         #endregion

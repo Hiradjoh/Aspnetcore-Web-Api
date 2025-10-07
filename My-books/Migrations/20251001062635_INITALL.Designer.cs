@@ -12,8 +12,8 @@ using My_books;
 namespace My_books.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20250920131007_BookAuthorColumnRemoved")]
-    partial class BookAuthorColumnRemoved
+    [Migration("20251001062635_INITALL")]
+    partial class INITALL
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

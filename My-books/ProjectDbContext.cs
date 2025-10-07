@@ -16,6 +16,7 @@ namespace My_books
         public DbSet<Author> Authors { get; set; }
         public DbSet<Book_Author> Book_Authors { get; set; }
         public DbSet<Publisher> Publishers { get; set; }
+    
         #endregion
 
         #region [-OnModelCreating-]
@@ -30,6 +31,7 @@ namespace My_books
                 .HasOne(b => b.Author)
                 .WithMany(ba => ba.Book_Authors)
                 .HasForeignKey(bi => bi.AuthorId);
+           
         }
         #endregion
     }

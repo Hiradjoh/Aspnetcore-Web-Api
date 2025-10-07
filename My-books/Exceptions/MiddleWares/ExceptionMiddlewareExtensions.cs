@@ -6,17 +6,28 @@ using System.Net;
 namespace My_books.Exceptions.MiddleWares
 {
     public static class ExceptionMiddlewareExtensions// tarif middle ware ha 
+    /// Provides extension methods to configure exception handling middlewares in the application.
+    /// Includes both the built-in ASP.NET Core exception handler and a custom exception middleware.
     {
         #region [-Configure-BuiltIn-Exception-Handler-]
-        public static void ConfigureBuildInExceptionHandler(this IApplicationBuilder app)
+        //daroon khodesh ex dare 
+        public static void ConfigureBuildInExceptionHandler(this IApplicationBuilder app) // exception that occurs in the pipeline will be caught by this middleware .
+
         {
-            app.UseExceptionHandler(appError =>
+            app.UseExceptionHandler(appError =>// Adds a middleware to the pipeline that will catch exceptions, log them, and re-execute
+                                               //     the request in an alternate pipeline. The request will not be re-executed if
+                                               //     the response has already started.
+                                               //
+                                               // Parameters:
+                                               //   app:
+                                               //
+                                               //   options:
             {
                 appError.Run(async context =>
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/json";
-                    var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                    var contextFeature = context.Features.Get<IExceptionHandlerFeature>();//With these lines, you can get the error details and the request path .
                     var contextRequest = context.Features.Get<IHttpRequestFeature>();
 
                     if (contextFeature != null)

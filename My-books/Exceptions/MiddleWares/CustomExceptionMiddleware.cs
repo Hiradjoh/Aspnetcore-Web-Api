@@ -1,9 +1,9 @@
 ﻿using My_books.Data.ViewModels;
 using System.Net;
 
-namespace My_books.Exceptions
+namespace My_books.Exceptions.MiddleWares
 {
-    public class CustomExceptionMiddleware// exception custom baraye middle ware ha
+    public class CustomExceptionMiddleware//  custom Ex and custom middleware
     {
         private readonly RequestDelegate _next;
 
@@ -14,13 +14,13 @@ namespace My_books.Exceptions
         }
         #endregion
 
-      
+
         #region [-InvokeAsync-]
         public async Task InvokeAsync(HttpContext httpContext)
         {
             try
             {
-                await _next(httpContext);
+                await _next(httpContext); //یعنی درخواست به Middleware بعدی در pipeline فرستاده می‌شود.
             }
             catch (Exception ex)
             {

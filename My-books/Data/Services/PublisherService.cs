@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace My_books.Data.Services
 {
-    public class PublisherService
+    public class PublisherService 
     {
         private readonly ProjectDbContext _context;
 
@@ -122,4 +122,5 @@ namespace My_books.Data.Services
         private bool StringStartsWithNumber(string name) => (Regex.IsMatch(name, @"^\d"));
         #endregion
     }
+
 }

@@ -60,7 +60,7 @@ namespace My_books.Controllers
             var result=await _userManager.CreateAsync(newUser,payload.Password);//user misaze dar database va password be soorat hash save mikone 
             if (!result.Succeeded)
             {
-                return BadRequest("Use could not be created");
+                return BadRequest("User could not be created");
             }
             return Created(nameof(Register), $"User {payload.Email} Already Created");
         }
@@ -72,9 +72,9 @@ namespace My_books.Controllers
             {
                 return BadRequest("please , provide all required fields");
             }
-            var user = await _userManager.FindByEmailAsync(payload.Email);
+            var user = await _userManager.FindByEmailAsync(payload.Email);// check kardan vojoode user ba email dade shode
 
-            if (user != null && await _userManager.CheckPasswordAsync(user, payload.Password))
+            if (user != null && await _userManager.CheckPasswordAsync(user, payload.Password)) //agar user vojoood dasht va password dorost bood
             {
              var tokenvalue=await GenerateJwtTokenAsync(user,"");   
             return Ok (tokenvalue);
@@ -87,7 +87,7 @@ namespace My_books.Controllers
         {
             try
             { 
-                var result = await VerifyAndGenerateTokenAsync(payload);
+                var result = await VerifyAndGenerateTokenAsync(payload);// baraye verify kardan token va sakhte token jadid
 
                 if (result == null) return BadRequest("Invalid tokens");
 
@@ -113,7 +113,7 @@ namespace My_books.Controllers
             {
                 //Check 1-check Jwt token Format
                 var tokenInVerification = jwtTokenHandler.ValidateToken(payload.Token, _tokenValidationParameters//check kardan secret key / audience , issuer 
-                    , out var validatedToken);//check kardan secret key / audience , issuer 
+                    , out var validatedToken);//agar token sahih bood token valid mishe
 
 
 
@@ -121,7 +121,7 @@ namespace My_books.Controllers
                 if (validatedToken is JwtSecurityToken jwtSecurityToken)
                 {
                     var result = jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,//motmaen mishim algoritm JWt hamoon Hmac Sha256 hast 
-                        StringComparison.InvariantCultureIgnoreCase);
+                        StringComparison.InvariantCultureIgnoreCase);//barresi algoritm emza token
                     if (result == false) return null;
                 }
 
@@ -129,9 +129,9 @@ namespace My_books.Controllers
 
                 //check 3- validate expiry date
                 var utcExpiryDate = long.Parse(tokenInVerification.Claims.FirstOrDefault(x => x.Type ==
-                JwtRegisteredClaimNames.Exp).Value);
+                JwtRegisteredClaimNames.Exp).Value);// daryafte zaman monqazi shodan token az dakhel claim haye token
 
-                var expiryDate = UnixTimeStampToDateTimeInUtc(utcExpiryDate);
+                var expiryDate = UnixTimeStampToDateTimeInUtc(utcExpiryDate);// tabdil zaman monqazi shode az format unix be DateTime
                 if (expiryDate > DateTime.UtcNow) throw new Exception("Token has not expired yet!");// check kardan monqazi shodan token 
 
 
@@ -141,34 +141,35 @@ namespace My_books.Controllers
 
 
                 if (dbRefreshToken == null) throw new Exception("Refresh token does not exists in our Db ");// ag voojood nadashte bashe 
+
                 else //ag vojood dashte bashe 
                 {
                     //check 5--validateId
-                    var jti = tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti).Value;//har jwt yek id unic dare motealeq be khodeshe in on check mikone
-                    if (dbRefreshToken.JwtId != jti) throw new Exception("Token dos not match");
+                    var jti = tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti).Value;// daryafte jwtid az dakhel claim haye token
+                    if (dbRefreshToken.JwtId != jti) throw new Exception("Token dos not match");// check kardan inke jwt id dakhel refresh token ba jti dakhel token barabar bashe
 
 
                     //check6--Refresh token  expiration
-                    if (dbRefreshToken.DateExpire <= DateTime.UtcNow) throw new Exception("Your refresh token hast expired,please re-authenticate!");//check kardan monqazi shodan refresh token 
+                    if (dbRefreshToken.DateExpire <= DateTime.UtcNow) throw new Exception("Your refresh token hast expired,please re-authenticate!");// check kardan monqazi shodan refresh token
 
 
                     //check 7-- Refresh token Revoked 
-                    if (dbRefreshToken.IsRevoked) throw new Exception("Refresh token is revoke");// check kardan vaziat refresh token 
+                    if (dbRefreshToken.IsRevoked) throw new Exception("Refresh token is revoke");// check kardan inke refresh token revoke ya monqazi  nashode bashe
 
 
                     //Generate new token (with existing refresh token)
-                    var dbUserData = await _userManager.FindByIdAsync(dbRefreshToken.UserId);
-                    var newTokenResponse = GenerateJwtTokenAsync(dbUserData, payload.RefreshToken);//sakhtan token jadid ba refresh token jadid 
+                    var dbUserData = await _userManager.FindByIdAsync(dbRefreshToken.UserId);// daryafte etelaat user ba estefade az user id dakhel refresh token
+                    var newTokenResponse = GenerateJwtTokenAsync(dbUserData, payload.RefreshToken);// sakhte token jadid ba estefade az refresh token ghabli
                     return await newTokenResponse;
 
                 }
             }
-            catch (SecurityTokenExpiredException)// ag jwt monqazi sode bashe in ex etefaq biofte ba refresh token , jwt jadid tolid mishe yani karbar dobare password vared nakone 
+            catch (SecurityTokenExpiredException)// age token monqazi shode bashe
             {
-                var dbRefreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(n => n.Token == payload.RefreshToken);
+                var dbRefreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(n => n.Token == payload.RefreshToken);//check kardan inke refresh token voojood dare ya na
                 //Generate new token (with existing refresh token)
-                var dbUserData = await _userManager.FindByIdAsync(dbRefreshToken.UserId);
-                var newTokenResponse = GenerateJwtTokenAsync(dbUserData, payload.RefreshToken);
+                var dbUserData = await _userManager.FindByIdAsync(dbRefreshToken.UserId);// daryafte etelaat user ba estefade az user id dakhel refresh token
+                var newTokenResponse = GenerateJwtTokenAsync(dbUserData, payload.RefreshToken);// sakhte token jadid ba estefade az refresh token ghabli
                 return await newTokenResponse; ;
             }
             catch (Exception ex)// sayer error haye deg 
@@ -187,7 +188,7 @@ namespace My_books.Controllers
                 new Claim(ClaimTypes.NameIdentifier,user.Id),
                 new Claim(JwtRegisteredClaimNames.Email,user.Email),
                 new Claim(JwtRegisteredClaimNames.Sub,user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),//unique id baraye har token
             };
             //sabet mikone in token vaqan az server ma sakhte shode na kase deg
             var authSigninKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]));
@@ -199,9 +200,9 @@ namespace My_books.Controllers
 
                 expires: DateTime.UtcNow.AddMinutes(1),//5-10mins
                 claims: authClaims,//etelaat user dar token
-                signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256)//emsa token ba kilid makhfi 
+                signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256)//emza kardan token ba estefade az emza va algoritm emza
                 );
-            var jwtToken=new JwtSecurityTokenHandler().WriteToken(token);
+            var jwtToken=new JwtSecurityTokenHandler().WriteToken(token);// tabdil token be string baraye ersal be client
 
             var refreshToken = new RefreshToken();
             
@@ -221,16 +222,16 @@ namespace My_books.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            var response = new AuthResultVM()
+            var response = new AuthResultVM()//modeli ke baraye javab dadan be client misazim
             {
                 Token = jwtToken,
-                RefreshToken =  (string.IsNullOrEmpty(existingrefreshToken))?   refreshToken.Token : existingrefreshToken,
+                RefreshToken =  (string.IsNullOrEmpty(existingrefreshToken))?   refreshToken.Token : existingrefreshToken,//agar refresh token ghabli vojood dasht hamoon ro bde
                 ExpiresAt = token.ValidTo
             };
             return response;
 
         }
-        private DateTime UnixTimeStampToDateTimeInUtc(long UnixTimeStamp)
+        private DateTime UnixTimeStampToDateTimeInUtc(long UnixTimeStamp)// tabdil zaman unix be DateTime
         {
             var dateTimeVal = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             dateTimeVal=dateTimeVal.AddSeconds(UnixTimeStamp);

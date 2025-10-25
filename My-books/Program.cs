@@ -68,16 +68,16 @@ builder.Services.AddSwaggerGen();
 var tokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
 {
     ValidateIssuerSigningKey = true,
-    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWT:Secret"])),
+    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWT:Secret"])),//emza token va kilid emza token
 
     ValidateIssuer = true,
-    ValidIssuer = Configuration["JWT:Issuer"],
+    ValidIssuer = Configuration["JWT:Issuer"],//sader konande token
 
     ValidateAudience = true,
-    ValidAudience = Configuration["JWT:Audience"],
+    ValidAudience = Configuration["JWT:Audience"],//token baraye koja sader shode
 
     ValidateLifetime = true,
-    ClockSkew=TimeSpan.Zero,
+    ClockSkew=TimeSpan.Zero,//ekhtelaf zamani bein server va client
 };
 
 
@@ -92,14 +92,14 @@ builder.Services.AddSingleton(tokenValidationParameters);
 
 
 // Add Identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ProjectDbContext>()
-    .AddDefaultTokenProviders();
-    
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()// ezafe kardan identity be project
+    .AddEntityFrameworkStores<ProjectDbContext>()// moshakhad mikone ke az kodom  DbContext baraye zakhire etelaat identity(claim,role , users) estefade kone
+    .AddDefaultTokenProviders();//tamam provider haye token ro baraye identity ezafe mikone(mesle token baraye reset kardan password ya email confirmation)
+
 //AddAuthentication
 builder.Services.AddAuthentication(options=> // az che scheme estefade kone 
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;//vaghti middleware mikhad user beshnase az che schema estefade jone 
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;// ag mikhad user ro authenticate kone az che schema estefade kone
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;//ag dasteresi qeyr moja bood az che schema bayad challenge bede 
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;// hamon scheme delfult baraye har kari 
 

@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using My_books.Data.Models;
 using My_books.Data.Services;
 using My_books.Data.ViewModels;
+using My_books.Data.ViewModels.Authentication;
 using My_books.Exceptions;
 using System.Reflection.Metadata;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace My_books.Controllers
 {
+    //[Authorize(Roles =UserRoles.Publisher+","+UserRoles.Admin)]
     [Route("api/[controller]")]
     [ApiController]
  

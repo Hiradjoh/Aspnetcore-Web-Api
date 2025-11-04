@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualBasic;
@@ -61,6 +62,26 @@ namespace My_books.Controllers
             if (!result.Succeeded)
             {
                 return BadRequest("User could not be created");
+            }
+
+            switch (payload.Role)
+            {
+                case "Admin":
+                    await _userManager.AddToRoleAsync(newUser,UserRoles.Admin); 
+                    break;
+
+                case "Publisher":
+                    await _userManager.AddToRoleAsync(newUser, UserRoles.Publisher); 
+                    break;
+
+                case "Author":
+                    await _userManager.AddToRoleAsync(newUser, UserRoles.Author); 
+                    break;
+
+                default:
+                    await _userManager.AddToRoleAsync(newUser, UserRoles.User); 
+                    break;
+
             }
             return Created(nameof(Register), $"User {payload.Email} Already Created");
         }
@@ -190,6 +211,14 @@ namespace My_books.Controllers
                 new Claim(JwtRegisteredClaimNames.Sub,user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),//unique id baraye har token
             };
+            //Add User Roles 
+
+            var userRoles=await _userManager.GetRolesAsync(user);//
+            foreach (var userRole in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+            }
+
             //sabet mikone in token vaqan az server ma sakhte shode na kase deg
             var authSigninKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]));
          
@@ -198,7 +227,7 @@ namespace My_books.Controllers
                 audience: _configuration["JWT:Audience"],//baraye che kasi in token sakhte shode
                                                          //masalan in token faqat baraye kaebaraye appliction mobile esteade mikonan sakhte shode 
 
-                expires: DateTime.UtcNow.AddMinutes(1),//5-10mins
+                expires: DateTime.UtcNow.AddMinutes(10),//5-10mins
                 claims: authClaims,//etelaat user dar token
                 signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256)//emza kardan token ba estefade az emza va algoritm emza
                 );
@@ -225,7 +254,8 @@ namespace My_books.Controllers
             var response = new AuthResultVM()//modeli ke baraye javab dadan be client misazim
             {
                 Token = jwtToken,
-                RefreshToken =  (string.IsNullOrEmpty(existingrefreshToken))?   refreshToken.Token : existingrefreshToken,//agar refresh token ghabli vojood dasht hamoon ro bde
+                RefreshToken =  (string.IsNullOrEmpty(existingrefreshToken))?/*shart*/   refreshToken.Token /*meqdar ag dorost bood */ : existingrefreshToken/*shart ag qalat bood yani ag voojood dasht*/,
+                //agar refresh token ghabli vojood dasht hamoon ro bde
                 ExpiresAt = token.ValidTo
             };
             return response;

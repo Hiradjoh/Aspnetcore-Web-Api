@@ -309,7 +309,7 @@ namespace My_books.Migrations
                     b.ToTable("Book_Authors");
                 });
 
-            modelBuilder.Entity("My_books.Data.Models.Log", b =>
+            modelBuilder.Entity("My_books.Data.Models.LogEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -318,27 +318,18 @@ namespace My_books.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Exception")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Level")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LogEvent")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Message")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MessageTemplate")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Properties")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TimeStamp")
@@ -346,7 +337,7 @@ namespace My_books.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Log");
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("My_books.Data.Models.Publisher", b =>

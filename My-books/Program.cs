@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using My_books;
+using My_books.Data;
 using My_books.Data.Models;
 using My_books.Data.Services;
 using My_books.Exceptions.MiddleWares;
@@ -12,18 +13,29 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Serilog Configuration
 var Configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
+builder.Host.UseSerilog((context, loggerConfig) =>
+{
+
+    loggerConfig.ReadFrom.Configuration(context.Configuration);
+    loggerConfig.WriteTo.Seq("http://localhost:5341");
+    //loggerConfig.WriteTo.Console();// dar app setting tarif shode 
+
+
+}); 
+//Serilog Configuration
+
+
 // مشخص کردن Serilog.Log به جای فقط Log
-Serilog.Log.Logger = new Serilog.LoggerConfiguration()
-    .ReadFrom.Configuration(Configuration)
-    .CreateLogger();
+//Serilog.Log.Logger = new Serilog.LoggerConfiguration()
+//    .ReadFrom.Configuration(Configuration)
+//    .CreateLogger();
 
 // جایگزینی Logger پیشفرض ASP.NET Core با Serilog
-builder.Host.UseSerilog();
+//builder.Host.UseSerilog();
 
 
 
@@ -50,13 +62,19 @@ builder.Services.AddDbContext<ProjectDbContext>(options => options.UseSqlServer(
 
 
 //builder.Services.AddApiVersioning();
-//builder.Services.AddApiVersioning(config=>
-//{
-//    config.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
-//    config.AssumeDefaultVersionWhenUnspecified = true;
-//    config.ApiVersionReader = new HeaderApiVersionReader("custom-version-header"); 
-//    config.ApiVersionReader = new MediaTypeApiVersionReader(); 
-//});
+builder.Services.AddApiVersioning(options =>
+{
+
+    options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ApiVersionReader = new HeaderApiVersionReader("custom-version-header");
+    options.ApiVersionReader = new MediaTypeApiVersionReader();
+
+});
+
+
+
+
 
 // OpenAPI / Swagger
 builder.Services.AddOpenApi();
@@ -84,7 +102,8 @@ var tokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidati
 #region [-Dependency-Injection-]
 builder.Services.AddTransient <PublisherService > ();
 builder.Services.AddTransient<BookService>();
-builder.Services.AddTransient<AuthorService>();
+builder.Services.AddTransient<AuthorService>(); 
+builder.Services.AddTransient<LogsService>();
 builder.Services.AddSingleton(tokenValidationParameters);
 
 #endregion
@@ -127,6 +146,7 @@ app.UseHttpsRedirection();
 //Authentication  & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+AppDbInitializer.SeedRoles(app).Wait();
 
 #region [-Exception-Handling-]
 app.ConfigureBuildInExceptionHandler();

@@ -12,8 +12,8 @@ using My_books;
 namespace My_books.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20251104095048_add")]
-    partial class add
+    [Migration("20251110123506_addall")]
+    partial class addall
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -350,6 +350,9 @@ namespace My_books.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AddedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()

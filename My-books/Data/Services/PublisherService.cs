@@ -56,7 +56,7 @@ namespace My_books.Data.Services
         #endregion
 
         #region [-Post-Publisher-]
-        public Publisher AddPublisher(PublisherVM publisher)
+        public Publisher AddPublisher(PublisherVM publisher, Guid userId)
         {
             if (StringStartsWithNumber(publisher.Name))
                 throw new PublisherNameException("Name Starts With Number", publisher.Name);
@@ -64,6 +64,7 @@ namespace My_books.Data.Services
             var _publisher = new Publisher()
             {
                 Name = publisher.Name,
+                AddedByUserId = userId
             };
             _context.Publishers.Add(_publisher);
             _context.SaveChanges();

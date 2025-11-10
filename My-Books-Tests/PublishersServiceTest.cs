@@ -86,7 +86,8 @@ namespace My_Books_Tests
         {
             var newPublisher = new PublisherVM()
             {
-                Name = "123 With Exception"
+                Name = "123 With Exception",
+                AddedByUserId = userId
             };
 
             Assert.That(() => publishersService.AddPublisher(newPublisher)

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace My_books.Migrations
 {
     /// <inheritdoc />
-    public partial class addallmodels : Migration
+    public partial class addall : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -68,14 +68,14 @@ namespace My_books.Migrations
                 name: "Logs",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MessageTemplate = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Level = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MessageTemplate = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Level = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Exception = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Properties = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Exception = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Properties = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -88,7 +88,8 @@ namespace My_books.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {

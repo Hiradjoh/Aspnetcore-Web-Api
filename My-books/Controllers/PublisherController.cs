@@ -6,6 +6,7 @@ using My_books.Data.ViewModels;
 using My_books.Data.ViewModels.Authentication;
 using My_books.Exceptions;
 using System.Reflection.Metadata;
+using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace My_books.Controllers
@@ -18,15 +19,16 @@ namespace My_books.Controllers
     {
         private PublisherService _publisherService;
         private readonly ILogger<PublisherController> _logger;
-
+        private readonly IAuthorizationService _authorizationService;
 
 
 
         #region [-Ctor-]
-        public PublisherController(PublisherService publisherService, ILogger<PublisherController> logger)
+        public PublisherController(PublisherService publisherService, ILogger<PublisherController> logger, IAuthorizationService authorizationService)
         {
             _publisherService = publisherService;
             _logger = logger;
+            _authorizationService = authorizationService;
         }
         #endregion
 
@@ -78,13 +80,23 @@ namespace My_books.Controllers
         #endregion
 
         #region [-Post-Publisher-]
+        [Authorize(Policy ="PublisherWrite")]
         [HttpPost("add-publisher")]
-        public IActionResult AddPublisher([FromBody] PublisherVM publisher)
+        public async Task<IActionResult> AddPublisher([FromBody] PublisherVM publisher)
         {
             try // try: code that might throw an error
             {
-                var newPublisher = _publisherService.AddPublisher(publisher);
-                return Created(nameof(AddPublisher), newPublisher);
+                var requirement = new OperationRequirement("Write");
+                var result = await _authorizationService.AuthorizeAsync(User, publisher, requirement);
+                if (!result.Succeeded)  Forbid(); 
+                //{ return Forbid();}
+                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                var addedPublisher = _publisherService.AddPublisher(publisher, userId);
+
+                //var newPublisher = _publisherService.AddPublisher(publisher);
+                return Created(nameof(AddPublisher), addedPublisher);
+
             }
             catch (PublisherNameException ex) //handle the error
             {
@@ -92,7 +104,7 @@ namespace My_books.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.InnerException?.Message ??ex.Message);
             }
             finally// finally: always executes
 
@@ -111,11 +123,23 @@ namespace My_books.Controllers
         #endregion
 
         #region [-Delete-Publisher-By-Id-]
+        //[Authorize(Policy = "PublisherDelete")]
         [HttpDelete("delete-publisher-by-id/{id}")]
-        public IActionResult DeletePublisherById(int id)
+        public async Task<IActionResult> DeletePublisherById(int id)
         {
             try
             {
+                var publisher = _publisherService.GetPublisherById(id);
+                if (publisher == null)
+                    return NotFound();
+
+                // Resource-based authorization
+                var requirement = new OperationRequirement("Delete");
+                var result = await _authorizationService.AuthorizeAsync(User, publisher, requirement);
+
+                if (!result.Succeeded)
+                    return Forbid(); // 403
+
                 _publisherService.DeletePublisherById(id);
                 return Ok();
             }

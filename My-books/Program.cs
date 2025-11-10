@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,8 @@ using My_books;
 using My_books.Data;
 using My_books.Data.Models;
 using My_books.Data.Services;
+using My_books.Data.Services.AuthorizationHandlers;
+using My_books.Data.ViewModels.Authentication;
 using My_books.Exceptions.MiddleWares;
 using Serilog;
 using System.Text;
@@ -100,6 +103,8 @@ var tokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidati
 
 
 #region [-Dependency-Injection-]
+builder.Services.AddSingleton<IAuthorizationHandler, PublisherAuthorizationHandler>();
+
 builder.Services.AddTransient <PublisherService > ();
 builder.Services.AddTransient<BookService>();
 builder.Services.AddTransient<AuthorService>(); 
@@ -129,6 +134,25 @@ builder.Services.AddAuthentication(options=> // az che scheme estefade kone
     options.SaveToken = true;
     options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = tokenValidationParameters;
+});
+//builder.Services.AddAuthorization(options=>
+//{
+//    options.AddPolicy("PublisherWrite" , policy =>
+//        policy.RequireRole("Admin", "Publisher"));
+
+//    options.AddPolicy("PublisherDelete", policy =>
+//       policy.RequireRole("Admin"));
+//}); 
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("PublisherWrite", policy =>
+        policy.RequireAssertion(context =>
+            context.User.IsInRole("Publisher") ||
+            context.User.IsInRole("Admin") 
+           
+        ));
+    
 });
 var app = builder.Build();
 

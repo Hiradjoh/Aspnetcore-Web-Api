@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Microsoft.Extensions.Logging.Abstractions;
+
 using My_books;
 using My_books.Controllers;
 using My_books.Data.Models;
@@ -21,6 +24,7 @@ namespace My_Books_Tests
             .Options;//create the DB context options and then we pass the options as aparameter to the DB context.
         PublisherService publishersService;
         ProjectDbContext context;
+        private readonly IAuthorizationService _authorizationService;
         PublisherController publisherController;
         [OneTimeSetUp]
         public void Setup()
@@ -31,8 +35,10 @@ namespace My_Books_Tests
             SeedDatabase();// add data to the database 
 
             publishersService = new PublisherService(context);
-            publisherController = new PublisherController(publishersService, new NullLogger<PublisherController>());
 
+            // Provide a mock or stub for IAuthorizationService
+            var mockAuthorizationService = new Moq.Mock<IAuthorizationService>().Object;
+            publisherController = new PublisherController(publishersService, new NullLogger<PublisherController>(), mockAuthorizationService);
         }
 
 
@@ -113,7 +119,7 @@ namespace My_Books_Tests
         public void HTTPDELETE_DeletePublisherById_ReturnOk_Test()
         {
          
-            IActionResult actionResult = publisherController.DeletePublisherById(1);
+            Task<IActionResult> actionResult = publisherController.DeletePublisherById(1);
             Assert.That(actionResult, Is.TypeOf<OkResult>());
 
         }
@@ -121,7 +127,7 @@ namespace My_Books_Tests
         public void HTTPDELETE_DeletePublisherById_ReturnBadRequest_Test()
         {
 
-            IActionResult actionResult = publisherController.DeletePublisherById(12);
+            Task<IActionResult> actionResult = publisherController.DeletePublisherById(12);
             Assert.That(actionResult, Is.TypeOf<BadRequestObjectResult>());
 
         }
